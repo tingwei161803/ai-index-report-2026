@@ -22,8 +22,8 @@
 - 🌗 **深色 / 淺色模式** — 暖色調學術風,手動切換並記憶於 `localStorage`
 - 🧭 **複合多區段 + 黏著式導覽** — Hero → 15 條重點 → 9 大章節 → 美中對比 → 數據圖表 → 名言 → 來源,捲動時自動高亮所在區段(scrollspy)
 - 🃏 **15 條重點卡片 + 詳情對話框** — 點任一張(編號 01–15)展開完整結論與數字
-- 🩺 **醫療趨勢專題頁** — 第 6 章完整詳解(`medicine.html`):分子生物學模型、臨床應用、FDA 醫材、企業級部署、病人參與與倫理,appbar 與主頁醫療區皆可進入
-- 📊 **內嵌 SVG 圖表** — 美中投資對比、各國採用率、AI 事故年增、生醫 AI 發表成長、FDA 醫材分布,無圖表函式庫
+- 📚 **九大章節詳解頁** — 每一章都有獨立深入頁(研發、技術表現、負責任 AI、經濟、科學、醫療、教育、政策與治理、民意),含 Hero 數字、分區段說明、多組圖表、子趨勢卡片;從 appbar「章節」與主頁各章節展開的「完整詳解 →」皆可進入,頁底並有「上一章 / 所有章節 / 下一章」導覽
+- 📊 **大量內嵌 SVG 圖表** — 投資、採用率、事故、運算、FDA 醫材、發表成長、專家 vs 大眾⋯⋯約 30+ 組圖表,無圖表函式庫
 - 🔗 **深連結** — 每條重點都有專屬 `#<slug>`,可直接分享
 - 🎞️ **進場微動效** — 區塊捲入時輕柔淡入(尊重 `prefers-reduced-motion`)
 - 📱 **響應式設計** — 手機、平板、桌機皆適配,375px 無水平溢出
@@ -40,13 +40,15 @@
 ai-index-report-2026/
 ├── docs/                 # 網站本體(GitHub Pages 從此資料夾發布)
 │   ├── index.html        # 入口頁:總覽 + 15 重點 + 9 章節 + 圖表
-│   ├── medicine.html     # 醫療趨勢詳解頁(第 6 章,共用同一套 app.js / styles.css)
+│   ├── research.html / performance.html / responsible-ai.html / economy.html
+│   ├── science.html / medicine.html / education.html / policy.html / public-opinion.html
+│   │                     # ↑ 九大章節詳解頁(全部共用同一套 app.js / styles.css)
 │   ├── data/
 │   │   ├── data.js        # 主頁資料層:SITE_META + SITE_SECTIONS(雙語 {en, zh})
-│   │   └── medicine.js    # 醫療頁資料層(雙語)
+│   │   └── <chapter>.js   # 各章節資料層(research.js … public-opinion.js,雙語)
 │   ├── assets/
 │   │   ├── styles.css     # 編輯/極簡學術風(暖色單色 + 黏土色強調)
-│   │   └── app.js         # 區段渲染、i18n、主題、對話框、捲動動效(雙頁共用)
+│   │   └── app.js         # 區段渲染、i18n、主題、對話框、捲動動效、跨章節導覽(全站共用)
 │   └── .nojekyll          # 讓 Pages 略過 Jekyll
 ├── ai_index_report_2026.pdf   # 原始報告 PDF(資料來源)
 └── README.md
