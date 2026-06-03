@@ -32,14 +32,19 @@
           srcLink: "Open the official report at Stanford HAI", srcLinkTxt: "Stanford HAI",
           navChapters: "Chapters", navChaptersTitle: "Jump to the nine chapter deep dives",
           navHome: "Overview", navHomeTitle: "Back to the AI Index 2026 overview",
-          allChapters: "All chapters", prevCh: "Previous", nextCh: "Next" },
+          allChapters: "All chapters", prevCh: "Previous", nextCh: "Next",
+          ghStar: "Star this project on GitHub" },
     zh: { footer: "非官方教育性整理 · 資料來源:史丹佛 HAI《人工智慧指數報告 2026》(CC BY-ND 4.0)· 以零建置純靜態網站打造。",
           close: "關閉", menu: "本頁導覽",
           srcLink: "前往史丹佛 HAI 官方報告", srcLinkTxt: "Stanford HAI",
           navChapters: "章節", navChaptersTitle: "跳到九大章節詳解",
           navHome: "總覽", navHomeTitle: "回到 AI 指數 2026 總覽",
-          allChapters: "所有章節", prevCh: "上一章", nextCh: "下一章" }
+          allChapters: "所有章節", prevCh: "上一章", nextCh: "下一章",
+          ghStar: "到 GitHub 給這個專案一顆星" }
   };
+
+  /* ---------- repo (for the GitHub star button) ---------- */
+  var REPO = "tingwei161803/ai-index-report-2026";
 
   /* ---------- chapter registry (for cross-page prev/next nav) ---------- */
   var CHAPTERS = [
@@ -563,9 +568,50 @@
   /* =======================================================================
      INIT
      ===================================================================== */
+  /* =======================================================================
+     GITHUB STAR BUTTON — injected into the appbar on every page; live
+     star count via the public repo endpoint (no auth), degrades silently.
+     ===================================================================== */
+  function injectGitHubStar() {
+    var actions = document.querySelector(".appbar__actions");
+    if (!actions || $("ghStar")) return;
+    var a = document.createElement("a");
+    a.className = "gh-star";
+    a.id = "ghStar";
+    a.href = "https://github.com/" + REPO;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.setAttribute("data-i18n", "ghStar");
+    a.setAttribute("data-i18n-attr", "title");
+    a.innerHTML =
+      '<svg class="gh-star__logo" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">' +
+        '<path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 ' +
+        '0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 ' +
+        '1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 ' +
+        '0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 ' +
+        '1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 ' +
+        '3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 ' +
+        '8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>' +
+      '<span class="material-symbols-rounded gh-star__icon" aria-hidden="true">star</span>' +
+      '<span class="gh-star__count" id="ghStarCount" aria-hidden="true"></span>';
+    actions.insertBefore(a, actions.firstChild);
+
+    try {
+      fetch("https://api.github.com/repos/" + REPO)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (!j || typeof j.stargazers_count !== "number") return;
+          var n = j.stargazers_count, c = $("ghStarCount");
+          if (c) c.textContent = n >= 1000 ? (Math.round(n / 100) / 10) + "k" : String(n);
+        })
+        .catch(function () { /* offline / rate-limited: leave the link as-is */ });
+    } catch (e) { /* fetch unavailable */ }
+  }
+
   function init() {
     applyTheme();
     applyLangChrome();
+    injectGitHubStar();
     render();
     wire();
     syncFromHash();
