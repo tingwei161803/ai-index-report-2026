@@ -167,7 +167,7 @@ a { color: inherit; text-decoration: none; }
 
 /* Chapters dropdown menu (injected by app.js) */
 .ch-menu { position: relative; display: inline-flex; }
-.ch-menu__btn { cursor: pointer; font: inherit; }
+.ch-menu__btn { cursor: pointer; font: inherit; background: transparent; }
 .ch-menu__caret { font-size: 18px; margin-left: -2px; transition: transform .2s; }
 .ch-menu--open .ch-menu__caret { transform: rotate(180deg); }
 .ch-menu--open.ch-menu .ch-menu__btn { color: var(--primary); border-color: var(--primary); }
