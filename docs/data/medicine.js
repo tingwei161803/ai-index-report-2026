@@ -9,6 +9,8 @@
    All strings bilingual {en, zh-TW}.
    ========================================================================= */
 
+window.SITE_CHAPTER = "medicine";
+
 window.SITE_META = {
   title:    { en: "AI Index Report 2026", zh: "AI 指數報告 2026" },
   subtitle: { en: "Medicine · a chapter deep dive", zh: "醫療專題 · 章節詳解" }

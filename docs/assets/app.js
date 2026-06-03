@@ -30,14 +30,29 @@
     en: { footer: "Unofficial educational digest · Source: Stanford HAI Artificial Intelligence Index Report 2026 (CC BY-ND 4.0) · Built as a zero-build static site.",
           close: "Close", menu: "On this page",
           srcLink: "Open the official report at Stanford HAI", srcLinkTxt: "Stanford HAI",
-          navMedicine: "Medicine", navMedicineTitle: "Deep dive: AI in medicine trends",
-          navHome: "Overview", navHomeTitle: "Back to the AI Index 2026 overview" },
+          navChapters: "Chapters", navChaptersTitle: "Jump to the nine chapter deep dives",
+          navHome: "Overview", navHomeTitle: "Back to the AI Index 2026 overview",
+          allChapters: "All chapters", prevCh: "Previous", nextCh: "Next" },
     zh: { footer: "非官方教育性整理 · 資料來源:史丹佛 HAI《人工智慧指數報告 2026》(CC BY-ND 4.0)· 以零建置純靜態網站打造。",
           close: "關閉", menu: "本頁導覽",
           srcLink: "前往史丹佛 HAI 官方報告", srcLinkTxt: "Stanford HAI",
-          navMedicine: "醫療趨勢", navMedicineTitle: "深入:AI 醫療趨勢詳解",
-          navHome: "總覽", navHomeTitle: "回到 AI 指數 2026 總覽" }
+          navChapters: "章節", navChaptersTitle: "跳到九大章節詳解",
+          navHome: "總覽", navHomeTitle: "回到 AI 指數 2026 總覽",
+          allChapters: "所有章節", prevCh: "上一章", nextCh: "下一章" }
   };
+
+  /* ---------- chapter registry (for cross-page prev/next nav) ---------- */
+  var CHAPTERS = [
+    { slug: "research",       file: "research.html",       num: 1, en: "Research & Development", zh: "研發" },
+    { slug: "performance",    file: "performance.html",    num: 2, en: "Technical Performance",  zh: "技術表現" },
+    { slug: "responsible-ai", file: "responsible-ai.html", num: 3, en: "Responsible AI",         zh: "負責任 AI" },
+    { slug: "economy",        file: "economy.html",        num: 4, en: "Economy",                zh: "經濟" },
+    { slug: "science",        file: "science.html",        num: 5, en: "Science",                zh: "科學" },
+    { slug: "medicine",       file: "medicine.html",       num: 6, en: "Medicine",               zh: "醫療" },
+    { slug: "education",      file: "education.html",       num: 7, en: "Education",              zh: "教育" },
+    { slug: "policy",         file: "policy.html",          num: 8, en: "Policy & Governance",    zh: "政策與治理" },
+    { slug: "public-opinion", file: "public-opinion.html",  num: 9, en: "Public Opinion",         zh: "民意" }
+  ];
 
   /* ---------- safe localStorage (sandbox / file:// may throw) ---------- */
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -308,9 +323,51 @@
     paintChrome();
     paintNav();
     paintSections();
+    renderChapterNav();
     setupScrollSpy();
     animateCounters();
     revealOnScroll();
+  }
+
+  /* =======================================================================
+     CHAPTER NAV — prev / all-chapters / next, shown only on a deep-dive
+     page (one that sets window.SITE_CHAPTER). Re-rendered on lang switch.
+     ===================================================================== */
+  function renderChapterNav() {
+    var existing = $("chapterNav");
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    var slug = window.SITE_CHAPTER;
+    if (!slug) return;
+    var idx = -1;
+    for (var i = 0; i < CHAPTERS.length; i++) { if (CHAPTERS[i].slug === slug) { idx = i; break; } }
+    if (idx === -1) return;
+    var prev = CHAPTERS[idx - 1], next = CHAPTERS[idx + 1];
+    function label(c) { return c.num + " · " + (state.lang === "zh" ? c.zh : c.en); }
+
+    function side(c, dir) {
+      if (!c) return '<span class="chapter-nav__link chapter-nav__link--empty" aria-hidden="true"></span>';
+      var arrow = '<span class="material-symbols-rounded" aria-hidden="true">' +
+        (dir === "prev" ? "arrow_back" : "arrow_forward") + "</span>";
+      var meta = '<span class="chapter-nav__meta"><span class="chapter-nav__dir">' +
+        escapeHtml(ui(dir === "prev" ? "prevCh" : "nextCh")) + "</span>" +
+        '<span class="chapter-nav__name">' + escapeHtml(label(c)) + "</span></span>";
+      return '<a class="chapter-nav__link chapter-nav__link--' + dir + '" href="' + c.file + '">' +
+        (dir === "prev" ? arrow + meta : meta + arrow) + "</a>";
+    }
+
+    var nav = document.createElement("nav");
+    nav.id = "chapterNav";
+    nav.className = "chapter-nav";
+    nav.setAttribute("aria-label", ui("allChapters"));
+    nav.innerHTML =
+      side(prev, "prev") +
+      '<a class="chapter-nav__all" href="index.html#chapters">' +
+        '<span class="material-symbols-rounded" aria-hidden="true">apps</span>' +
+        "<span>" + escapeHtml(ui("allChapters")) + "</span></a>" +
+      side(next, "next");
+
+    var footer = document.querySelector(".footer");
+    if (footer && footer.parentNode) footer.parentNode.insertBefore(nav, footer);
   }
 
   /* =======================================================================
