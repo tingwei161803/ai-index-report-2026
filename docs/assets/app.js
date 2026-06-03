@@ -29,10 +29,14 @@
   var I18N = {
     en: { footer: "Unofficial educational digest · Source: Stanford HAI Artificial Intelligence Index Report 2026 (CC BY-ND 4.0) · Built as a zero-build static site.",
           close: "Close", menu: "On this page",
-          srcLink: "Open the official report at Stanford HAI", srcLinkTxt: "Stanford HAI" },
+          srcLink: "Open the official report at Stanford HAI", srcLinkTxt: "Stanford HAI",
+          navMedicine: "Medicine", navMedicineTitle: "Deep dive: AI in medicine trends",
+          navHome: "Overview", navHomeTitle: "Back to the AI Index 2026 overview" },
     zh: { footer: "非官方教育性整理 · 資料來源:史丹佛 HAI《人工智慧指數報告 2026》(CC BY-ND 4.0)· 以零建置純靜態網站打造。",
           close: "關閉", menu: "本頁導覽",
-          srcLink: "前往史丹佛 HAI 官方報告", srcLinkTxt: "Stanford HAI" }
+          srcLink: "前往史丹佛 HAI 官方報告", srcLinkTxt: "Stanford HAI",
+          navMedicine: "醫療趨勢", navMedicineTitle: "深入:AI 醫療趨勢詳解",
+          navHome: "總覽", navHomeTitle: "回到 AI 指數 2026 總覽" }
   };
 
   /* ---------- safe localStorage (sandbox / file:// may throw) ---------- */
@@ -174,7 +178,13 @@
             "<span>" + escapeHtml(t(row.q)) + "</span>" +
             '<span class="material-symbols-rounded acc-chevron" aria-hidden="true">add</span>' +
           "</summary>" +
-          '<div class="acc-a">' + escapeHtml(t(row.a)) + "</div>" +
+          '<div class="acc-a">' + escapeHtml(t(row.a)) +
+            (row.link && row.link.url
+              ? '<a class="acc-link" href="' + escapeHtml(row.link.url) + '">' +
+                  escapeHtml(t(row.link.label)) +
+                  '<span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>'
+              : "") +
+          "</div>" +
         "</details>";
       }).join("");
       return sectionHead(sec) + '<div class="accordion">' + items + "</div>";
