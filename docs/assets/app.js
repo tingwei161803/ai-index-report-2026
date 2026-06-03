@@ -326,12 +326,74 @@
   /* full-page repaint — used on load AND on every language switch */
   function render() {
     paintChrome();
+    renderChaptersMenu();
     paintNav();
     paintSections();
     renderChapterNav();
     setupScrollSpy();
     animateCounters();
     revealOnScroll();
+  }
+
+  /* =======================================================================
+     CHAPTERS DROPDOWN — a global navigator in the appbar (all pages).
+     Replaces the static "Chapters/Overview" nav-link with a menu of the
+     overview + 9 chapter pages, current one highlighted. Rebuilt each
+     render so labels follow the language.
+     ===================================================================== */
+  function closeChMenu() {
+    var m = $("chMenu");
+    if (!m) return;
+    m.classList.remove("ch-menu--open");
+    var btn = $("chMenuBtn");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  }
+
+  function renderChaptersMenu() {
+    var actions = document.querySelector(".appbar__actions");
+    if (!actions) return;
+    // drop the no-JS fallback link + any previously rendered menu
+    ["navChapters", "navHome", "chMenu"].forEach(function (id) {
+      var el = $(id);
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    });
+
+    var cur = window.SITE_CHAPTER || null;
+    function row(num, name, href, active) {
+      return '<a class="ch-menu__item' + (active ? " ch-menu__item--active" : "") + '" href="' +
+        escapeHtml(href) + '" role="menuitem"' + (active ? ' aria-current="page"' : "") + ">" +
+        '<span class="ch-menu__num">' + escapeHtml(String(num)) + "</span>" +
+        "<span>" + escapeHtml(name) + "</span></a>";
+    }
+    var items = row(0, ui("navHome"), "index.html", !cur);
+    CHAPTERS.forEach(function (c) {
+      items += row(c.num, state.lang === "zh" ? c.zh : c.en, c.file, c.slug === cur);
+    });
+
+    var wrap = document.createElement("div");
+    wrap.className = "ch-menu";
+    wrap.id = "chMenu";
+    wrap.innerHTML =
+      '<button class="ch-menu__btn nav-link" id="chMenuBtn" type="button" aria-haspopup="true" ' +
+        'aria-expanded="false" title="' + escapeHtml(ui("navChaptersTitle")) + '">' +
+        '<span class="material-symbols-rounded">menu_book</span>' +
+        '<span class="nav-link__txt">' + escapeHtml(ui("navChapters")) + "</span>" +
+        '<span class="material-symbols-rounded ch-menu__caret" aria-hidden="true">expand_more</span>' +
+      "</button>" +
+      '<div class="ch-menu__panel" id="chMenuPanel" role="menu">' + items + "</div>";
+
+    var star = $("ghStar");
+    if (star && star.nextSibling) actions.insertBefore(wrap, star.nextSibling);
+    else if (star) actions.appendChild(wrap);
+    else actions.insertBefore(wrap, actions.firstChild);
+
+    var btn = $("chMenuBtn"), panel = $("chMenuPanel");
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = wrap.classList.toggle("ch-menu--open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    panel.addEventListener("click", function (e) { e.stopPropagation(); });
   }
 
   /* =======================================================================
@@ -556,6 +618,12 @@
     // Esc is handled natively by <dialog>
 
     window.addEventListener("hashchange", syncFromHash);
+
+    // close the chapters dropdown on outside-click or Esc
+    document.addEventListener("click", closeChMenu);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeChMenu();
+    });
   }
 
   /* deep link: open dialog matching #slug on load / hashchange */
