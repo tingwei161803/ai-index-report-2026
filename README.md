@@ -10,9 +10,9 @@
 
 | | |
 |---|---|
-| 🌐 網站 | <https://tingwei161803.github.io/ai-index-report-2026/> |
+| 🌐 網站 | <https://ai-index-report-2026.peteraim.com/> |
 
-> 直接點進去就能用,無需安裝。可用 `https://tingwei161803.github.io/ai-index-report-2026/#<slug>` 深連結到特定重點(例如 `#us-china-gap-closed`)。
+> 直接點進去就能用,無需安裝。可用 `https://ai-index-report-2026.peteraim.com/#<slug>` 深連結到特定重點(例如 `#us-china-gap-closed`)。
 
 ---
 
