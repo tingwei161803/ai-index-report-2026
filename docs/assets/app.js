@@ -14,9 +14,11 @@
    body of that section. To add a new block type, add one entry to RENDERERS
    and (optionally) an icon to NAV_ICONS — nothing else needs to change.
 
-   A single render() call repaints EVERY section + the sticky nav + chrome +
-   <title> in the active language, so the zh/en toggle never leaves anything
-   stuck. Hero stat counters animate (count-up) when scrolled into view.
+   The page's language comes from the URL — the Chinese pages sit at the site
+   root, the English ones under /en/, and each declares itself in <html lang>.
+   A single render() call paints EVERY section + the sticky nav + chrome +
+   <title> in that language. Hero stat counters animate (count-up) when
+   scrolled into view.
    ========================================================================= */
 (function () {
   "use strict";
@@ -64,8 +66,15 @@
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
 
   /* ---------- global state ---------- */
+  /* The URL decides the language: each language has its own page, and the page
+     says which one it is in <html lang>. The initial language is never read
+     back from storage — someone opening /en/ must get English even if they once
+     picked 中文 here, and crawlers have no storage at all. */
+  var PAGE_LANG = (document.documentElement.getAttribute("lang") || "en")
+    .toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
+
   var state = {
-    lang:  lsGet("lang")  || "en",       // default language: zh
+    lang:  PAGE_LANG,
     theme: lsGet("theme") || "light"
   };
 
@@ -302,7 +311,6 @@
   }
 
   function paintChrome() {
-    document.documentElement.setAttribute("lang", state.lang);
     var titleStr = t(META.title);
     var subStr = t(META.subtitle);
     document.title = subStr ? titleStr + " · " + subStr : titleStr;
@@ -323,7 +331,7 @@
     });
   }
 
-  /* full-page repaint — used on load AND on every language switch */
+  /* full-page paint in the page's language */
   function render() {
     paintChrome();
     renderChaptersMenu();
@@ -338,8 +346,8 @@
   /* =======================================================================
      CHAPTERS DROPDOWN — a global navigator in the appbar (all pages).
      Replaces the static "Chapters/Overview" nav-link with a menu of the
-     overview + 9 chapter pages, current one highlighted. Rebuilt each
-     render so labels follow the language.
+     overview + 9 chapter pages, current one highlighted. Labels follow the
+     page's language.
      ===================================================================== */
   function closeChMenu() {
     var m = $("chMenu");
@@ -398,7 +406,7 @@
 
   /* =======================================================================
      CHAPTER NAV — prev / all-chapters / next, shown only on a deep-dive
-     page (one that sets window.SITE_CHAPTER). Re-rendered on lang switch.
+     page (one that sets window.SITE_CHAPTER).
      ===================================================================== */
   function renderChapterNav() {
     var existing = $("chapterNav");
@@ -439,8 +447,8 @@
 
   /* =======================================================================
      REVEAL-ON-SCROLL — gentle fade/rise as blocks enter the viewport.
-     Only animates on the FIRST paint; later repaints (e.g. language switch)
-     mark everything visible instantly so the toggle never flashes.
+     Only animates on the FIRST paint; any later repaint marks everything
+     visible instantly so nothing flashes.
      ===================================================================== */
   var firstPaint = true;
   function prefersReducedMotion() {
@@ -587,10 +595,23 @@
     if (icon) icon.textContent = state.theme === "dark" ? "light_mode" : "dark_mode";
     lsSet("theme", state.theme);
   }
+  /* The language switch is a real link to THIS page in the other language
+     (English lives under /en/). The href is derived from location.pathname, so
+     adding a page never means coming back here to edit a list. */
+  function altLangHref() {
+    var p = location.pathname;
+    return p.indexOf("/en/") === 0 ? (p.slice(3) || "/") : "/en" + (p === "/" ? "/" : p);
+  }
   function applyLangChrome() {
     var label = $("langLabel");
     if (label) label.textContent = state.lang === "en" ? "EN" : "中";
-    lsSet("lang", state.lang);
+    var a = $("langToggle");
+    if (!a) return;
+    var to = state.lang === "en" ? "zh" : "en";
+    a.setAttribute("href", altLangHref());
+    a.setAttribute("hreflang", to === "zh" ? "zh-Hant" : "en");
+    a.setAttribute("lang", to === "zh" ? "zh-Hant" : "en");
+    a.setAttribute("aria-label", to === "zh" ? "切換到中文版" : "Switch to English");
   }
 
   /* =======================================================================
@@ -602,13 +623,8 @@
       applyTheme();
     });
 
-    $("langToggle").addEventListener("click", function () {
-      state.lang = state.lang === "en" ? "zh" : "en";
-      applyLangChrome();
-      var openSlug = isSlugHash() ? location.hash.slice(1) : null;
-      render();                       // repaint EVERYTHING in the new language
-      if (dialog.open && openSlug) openDialog(openSlug);  // repaint open dialog too
-    });
+    /* No language handler here any more: #langToggle is an <a> that navigates
+       to the other language's copy of this page. */
 
     $("dialogClose").addEventListener("click", closeDialog);
     dialog.addEventListener("click", function (e) { if (e.target === dialog) closeDialog(); });

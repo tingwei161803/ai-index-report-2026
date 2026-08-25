@@ -10,7 +10,8 @@
 
 | | |
 |---|---|
-| 🌐 網站 | <https://ai-index-report-2026.peteraim.com/> |
+| 🌐 中文版 | <https://ai-index-report-2026.peteraim.com/> |
+| 🌐 English | <https://ai-index-report-2026.peteraim.com/en/> |
 
 > 直接點進去就能用,無需安裝。可用 `https://ai-index-report-2026.peteraim.com/#<slug>` 深連結到特定重點(例如 `#us-china-gap-closed`)。
 
@@ -18,7 +19,7 @@
 
 ## ✨ 功能特色
 
-- 🌏 **中英文全頁切換** — 一鍵把整頁(卡片、章節、圖表、導覽、標題)切換為中文 / English,無任何殘留
+- 🌏 **一種語言一個網址** — 中文版在網站根目錄,英文版在 `/en/` 底下,兩邊互相標註 `hreflang`;appbar 的切換鈕是一個真的連結,打開哪個網址就是哪種語言
 - 🌗 **深色 / 淺色模式** — 暖色調學術風,手動切換並記憶於 `localStorage`
 - 🧭 **複合多區段 + 黏著式導覽** — Hero → 15 條重點 → 9 大章節 → 美中對比 → 數據圖表 → 名言 → 來源,捲動時自動高亮所在區段(scrollspy)
 - 🃏 **15 條重點卡片 + 詳情對話框** — 點任一張(編號 01–15)展開完整結論與數字
@@ -43,12 +44,16 @@ ai-index-report-2026/
 │   ├── research.html / performance.html / responsible-ai.html / economy.html
 │   ├── science.html / medicine.html / education.html / policy.html / public-opinion.html
 │   │                     # ↑ 九大章節詳解頁(全部共用同一套 app.js / styles.css)
+│   ├── en/               # 英文版:與上面同名的十頁,內容是英文
 │   ├── data/
 │   │   ├── data.js        # 主頁資料層:SITE_META + SITE_SECTIONS(雙語 {en, zh})
 │   │   └── <chapter>.js   # 各章節資料層(research.js … public-opinion.js,雙語)
 │   ├── assets/
 │   │   ├── styles.css     # 編輯/極簡學術風(暖色單色 + 黏土色強調)
 │   │   └── app.js         # 區段渲染、i18n、主題、對話框、捲動動效、跨章節導覽(全站共用)
+│   ├── sitemap.xml        # 兩種語言合計 20 個網址
+│   ├── robots.txt
+│   ├── CNAME              # 自訂網域
 │   └── .nojekyll          # 讓 Pages 略過 Jekyll
 ├── ai_index_report_2026.pdf   # 原始報告 PDF(資料來源)
 └── README.md
